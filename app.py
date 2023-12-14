@@ -28,24 +28,33 @@ def get_doula():
         print(ids, 'ids')
 
         if not zip_code:
-            return jsonify({"status": "failure", "error": "ZIP code is required"}), 400
+            return jsonify({
+                "status": "failure",
+                "error": "ZIP code is required"
+            }), 400
 
         # Parse the 'ids' parameter into a list of integers to exclude
         # This is used if a user requests another 2 doulas
         exclude_ids = [int(i) for i in ids.split(',') if i] if ids else []
 
         # Define the columns to select based on doula_type
-        general_columns = ["id", "name",
-                           "location", "service_range", "website", "phone", "doula_training", "type_of_practice", "clients_per_month", "college_education", "special_services_offered", "languages_spoken", "fee_detail", "certifications", "service_area"]
-        birth_columns = ["birth_fee",
-                         "birth_doula_experience", "home_births", "birth_center_births", "hospital_births_desc", "birth_center_births_desc", "home_births_desc", "hospital_births"]
-        postpartum_columns = [
-            "postpartum_rate", "postpartum_doula_experience"]
+        general_columns = [
+            "id", "name", "location", "service_range", "website", "phone",
+            "doula_training", "type_of_practice", "clients_per_month",
+            "college_education", "special_services_offered", "languages_spoken",
+            "fee_detail", "certifications", "service_area"
+        ]
+        birth_columns = [
+            "birth_fee", "birth_doula_experience", "home_births",
+            "birth_center_births", "hospital_births_desc",
+            "birth_center_births_desc", "home_births_desc", "hospital_births"
+        ]
+        postpartum_columns = ["postpartum_rate", "postpartum_doula_experience"]
 
         # Append additional columns based on doula_type
         if doula_type == 'postpartum':
             columns_to_select = general_columns + postpartum_columns
-        elif doula_type == 'birth':
+        else:
             columns_to_select = general_columns + birth_columns
 
         print(exclude_ids, 'exclude_ids')
@@ -58,16 +67,23 @@ def get_doula():
 
         if doula_zip_response.data:
             # Take only 2 doula IDs that are not in the excluded IDs
-            doula_ids = [entry['doula_id']
-                         for entry in doula_zip_response.data if entry['doula_id'] not in exclude_ids][:2]
+            doula_ids = [
+                entry['doula_id'] for entry in doula_zip_response.data
+                if entry['doula_id'] not in exclude_ids
+            ][:2]
 
             if doula_ids:
                 doula_data_response = supabase.table("doula").select(
                     ",".join(columns_to_select)).in_('id', doula_ids).execute()
 
                 return jsonify({"status": "success", "data": doula_data_response.data})
+            else:
+                return jsonify({"status": "success", "data": []})
         else:
-            return jsonify({"status": "success", "message": "No doulas found for the given ZIP code"})
+            return jsonify({
+                "status": "success",
+                "message": "No doulas found for the given ZIP code"
+            })
 
     except Exception as e:
         print(e, 'error')
@@ -88,7 +104,10 @@ def chat():
             # Return the AI response to the user
             return jsonify({"status": "Success", "message": response})
         else:
-            return jsonify({"status": "failure", "error": "Missing 'message' parameter in the request body"})
+            return jsonify({
+                "status": "failure",
+                "error": "Missing 'message' parameter in the request body"
+            })
 
     except Exception as e:
         print(e, 'error')
