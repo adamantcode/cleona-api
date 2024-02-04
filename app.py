@@ -42,7 +42,7 @@ def get_doula():
             "id", "name", "location", "service_range", "website", "phone",
             "doula_training", "type_of_practice", "clients_per_month",
             "college_education", "special_services_offered", "languages_spoken",
-            "fee_detail", "certifications", "service_area"
+            "fee_detail", "certifications", "service_area", "profile_image_URL"
         ]
         birth_columns = [
             "birth_fee", "birth_doula_experience", "home_births",
